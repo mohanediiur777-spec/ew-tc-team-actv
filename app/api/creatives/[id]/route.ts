@@ -13,13 +13,15 @@ export async function PUT(
     const { status, manager_comment, actor_id } = await request.json();
     const supabase = getSupabaseClient();
 
-    const { data, error } = await supabase
-      .from('creative_posts')
-      .update({
-        status,
-        manager_comment: manager_comment || null,
-        updated_at: new Date().toISOString(),
-      })
+    const updatePayload = {
+      status,
+      manager_comment: manager_comment || null,
+      updated_at: new Date().toISOString(),
+    };
+
+    const { data, error } = await (supabase
+      .from('creative_posts') as any)
+      .update(updatePayload)
       .eq('id', id)
       .select()
       .single();
@@ -37,7 +39,7 @@ export async function PUT(
       Closed: 'closed_creative',
     };
 
-    await supabase.from('activity_logs').insert({
+    await (supabase.from('activity_logs') as any).insert({
       action: actionMap[status] || `status_changed_to_${status.toLowerCase()}`,
       actor_id,
       post_id: id,
